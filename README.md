@@ -34,9 +34,6 @@ Ensure you have ```cmake```, ```libomp```, and ```gcc``` or ```clang``` installe
 
 [![asciicast](https://asciinema.org/a/KJpXLor4YrJ9EFrWccM90PNOL.svg)](https://asciinema.org/a/KJpXLor4YrJ9EFrWccM90PNOL?t=03&loop=0)
 
-### Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
 ## Acknowledgment
 This project was inspired by my love for travel, and my parents, who's lives are only now allowing them to explore their love for it too.
 
