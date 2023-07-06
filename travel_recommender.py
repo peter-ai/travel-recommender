@@ -1,9 +1,18 @@
+"""
+A script which takes user input of travel history and provides 
+meaningful recommendations for future travel destinations.
+
+Returns
+-------
+None
+    Returns nothing
+"""
+
 # import packages
 from itertools import repeat
 from sys import exit as sysexit
 
 import numpy as np
-import pandas as pd
 from fuzzywuzzy import fuzz, process
 from gower import gower_matrix
 from miceforest import load_kernel
@@ -27,7 +36,6 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
     recs (int) : number of recommendations wanted by the user
     """
 
-    num_destinations = len(user_destinations)
     recommendations = np.array(list())
 
     for data in tqdm(range(data_sets), desc="Loading"):
@@ -94,7 +102,7 @@ def print_recommendations(recommendations):
 # run main program
 if __name__ == "__main__":
     # set path for loading aggregated data and saved kernel
-    kernel_path = "mice_kernel"
+    kernel_path = "./mice_kernel"
 
     # load saved data and kernel, get count of imputed data sets and original data
     kernel = load_kernel(kernel_path)  # load kernel
@@ -104,18 +112,14 @@ if __name__ == "__main__":
     )  # retrieve master list of destinations
 
     # get user input
-
-    # # TODO: Delete example user input
-    # user_destinations = np.array(["Canada", "Madagascar", "France"])  # user provided destinations
-    # num_destinations = len(user_destinations)
-    # similar = "Y"  # user desires similar recommendations
-    # recs = 5  # number of recommendations desired by the user
-
     welcome_msg = "Thanks for using this travel recommendation system. To get started, please list up to three countries you have enjoyed travelling to or think you would (hit enter to submit your entries or skip a country).\n"
     print(welcome_msg)
 
     # check if we have data on the countries and validate input
+    # set default user destinations to None
     countries_valid = False
+    user_destinations = None
+
     while not countries_valid:
         # prompt user for countries
         country1 = input("Country 1: ")
@@ -183,12 +187,10 @@ if __name__ == "__main__":
                     "We'll provide recommendations based on the countries we did match though!"
                 )
                 user_destinations = matched_destinations[matched_destinations != None]
-                num_destinations = len(user_destinations)
                 # countries have been validated - exit loop
                 countries_valid = True
         else:
             user_destinations = matched_destinations
-            num_destinations = len(user_destinations)
 
             # countries have been validated - exit loop
             countries_valid = True
@@ -208,7 +210,9 @@ if __name__ == "__main__":
 
     # get user request for number of recommendations
     # must be an int between 1 and 25
+    # set default recommendations to 5
     recs_valid = False
+    recs = 5
     while not recs_valid:
         try:
             recs = int(input("How many recommendations would you like? (1-25): "))
@@ -216,7 +220,6 @@ if __name__ == "__main__":
                 print(
                     "Requested recommendations must be between 1 and 25, we'll set a default of 5 for you."
                 )
-                recs = 5
             recs_valid = True
             print("")
         except ValueError:

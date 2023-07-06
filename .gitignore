@@ -140,3 +140,4 @@ GitHub.sublime-settings
 # Project specific directories #
 raw_data/
 fuzzy_data/
+*.cast
