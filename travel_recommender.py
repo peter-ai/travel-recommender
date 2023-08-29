@@ -16,6 +16,8 @@ import numpy as np
 from fuzzywuzzy import fuzz, process
 from gower import gower_matrix
 from miceforest import load_kernel
+from sklearn.preprocessing import StandardScaler
+from sklearn_pandas import DataFrameMapper, gen_features
 from tqdm import tqdm
 
 
@@ -37,9 +39,19 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
     """
 
     recommendations = np.array(list())
+    numeric_cols = [
+        [col]
+        for col in kernel.working_data.select_dtypes(include=[np.number]).columns.values
+    ]
 
     for data in tqdm(range(data_sets), desc="Loading"):
         imputed_df = kernel.complete_data(data)
+
+        # standardize features using feature map of numerical columns to
+        # ensure distance measure is not influenced by scale of features
+        feature_map = gen_features(columns=numeric_cols, classes=[StandardScaler])
+        mapper = DataFrameMapper(feature_map, default=None, input_df=True, df_out=True)
+        imputed_df = mapper.fit_transform(imputed_df)
 
         # get the df indices of the destinations provided by the user
         user_dest_idx = np.array(
@@ -51,9 +63,6 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
 
         # get the indices of the user provided destinations which should not be recommended again
         excl_dest = (dist == 0).sum(axis=0).nonzero()[0]
-
-        # compute the sum of the distances for the set of provided destinations
-        dist_sum = dist.sum(axis=0)
 
         if similar == "Y":
             # retrieve the top n most similar destinations - minimize the sum of distances across the provided locations
