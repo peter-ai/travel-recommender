@@ -13,6 +13,10 @@ from itertools import repeat
 from sys import exit as sysexit
 
 import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
+import pycountry
 from fuzzywuzzy import fuzz, process
 from gower import gower_matrix
 from miceforest import load_kernel
@@ -84,7 +88,6 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
 
     # select the most frequently recommended locations across data sets
     recommendations = np.unique(recommendations, return_counts=True)
-    recommendations = recommendations[0][np.argsort(recommendations[1])[-recs:]]
 
     # return list of top n recommendations based on countries provided and similarity/dissimilarity
     return recommendations
@@ -100,16 +103,112 @@ def print_recommendations(recommendations):
     similar (str) : 'Y' or 'N' indicating user wants similar or dissimilar recommendations
     recs (int) : number of recommendations wanted by the user
     """
-
+    recommendations = recommendations[0][np.argsort(recommendations[1])[-recs:]]
     print(
         f"Thanks for your patience, here are {len(recommendations)} recommended destinations based on your inputs (unordered):"
     )
-    for i, loc in enumerate(recommendations):
-        print(f"{i+1}. {loc}")
+    for loc in recommendations:
+        print(f"* {loc}")
+
+
+def show_recommendations(recommendations, user_destinations, recs):
+    """
+    A function which visualizes the results provided by recommender system.
+    Coloring the map based on the normalized recommendation frequency a
+    country achieves across the multiple imputed data sets.
+
+    Parameters
+    ----------
+    recommendations (np.ndarray) : array of recommended destinations
+    user_destinations (np.ndarray) : array of user provided destinations
+    recs (int) : number of recommendations wanted by the user
+    """
+    # Instantiate list of countries not mapped from origin data in pycountry module
+    unmapped = {
+        "Bosnia": "Bosnia and Herzegovina",
+        "Brunei": "Brunei Darussalam",
+        "Cape Verde": "Cabo Verde",
+        "Caribbean Netherlands": "Netherlands",
+        "Côte d’Ivoire": "Côte d'Ivoire",
+        "Democratic Republic of Congo": "Congo, The Democratic Republic of the",
+        "East Timor": "Timor-Leste",
+        "Falkland Islands": "Falkland Islands (Malvinas)",
+        "U.S. Virgin Islands": "Virgin Islands, U.S.",
+        "Syria": "Syrian Arab Republic",
+        "São Tomé and Príncipe": "Sao Tome and Principe",
+        "Sint Maarten": "Sint Maarten (Dutch part)",
+        "Saint Martin": "Saint Martin (French part)",
+        "Saint Helena": "Saint Helena, Ascension and Tristan da Cunha",
+        "Russia": "Russian Federation",
+        "Micronesia": "Micronesia, Federated States of",
+        "Palestine": "Palestine, State of",
+        "Laos": "Lao People's Democratic Republic",
+        "Kosovo": "Serbia",
+        "Iran": "Iran, Islamic Republic of",
+    }
+
+    # Get ISO 3 country codes for recommended travel destinations and compute recommendation intensity
+    codes = [
+        pycountry.countries.lookup(unmapped[country]).alpha_3
+        if country in unmapped
+        else pycountry.countries.lookup(country).alpha_3
+        for country in recommendations[0]
+    ]
+    normalized_freq = (recommendations[1] - min(recommendations[1])) / (
+        max(recommendations[1]) - min(recommendations[1])
+    )
+    reco_freq = pd.DataFrame(
+        data={
+            "Country": recommendations[0],
+            "ISO_3": codes,
+            "Recommendation intensity": normalized_freq,
+        }
+    ).iloc[np.argsort(recommendations[1])[-recs:]][:]
+
+    # Create subtitle based on the user provided countries
+    subtitle = "You have visited, or have an interest in, "
+    if len(user_destinations) == 1:
+        subtitle += f"{user_destinations[0]}"
+    elif len(user_destinations) == 2:
+        subtitle += f"{user_destinations[0]} and {user_destinations[1]}"
+    else:
+        subtitle += f"{user_destinations[0]}, {user_destinations[1]}, and {user_destinations[2]}"
+
+    # Build choropleth map with recommendation intensity
+    fig = px.choropleth(
+        reco_freq,
+        locations="ISO_3",
+        color="Recommendation intensity",
+        range_color=[0, 1],
+        hover_name="Country",
+        hover_data={"ISO_3": False, "Recommendation intensity": ":.2f"},
+        projection="equirectangular",
+        title="Relative strength in the recommendation of each travel destination<br><sup>"
+        + subtitle,
+        color_continuous_scale="viridis",
+    )
+    fig.update_layout(
+        title=dict(font=dict(size=26), x=0.015, y=0.9625),
+        margin=dict(l=15, r=10, b=30, t=70),
+        coloraxis_colorbar=dict(
+            title="Recommendation<br>intensity",
+            thicknessmode="pixels",
+            lenmode="pixels",
+            yanchor="top",
+            y=1,
+            xanchor="left",
+            x=0.01,
+            tickvals=[0, 0.5, 1],
+            ticktext=["Low", "Medium", "High"],
+        ),
+    )
+    fig.show()
 
 
 # run main program
 if __name__ == "__main__":
+    pio.renderers.default = "browser"
+
     # set path for loading aggregated data and saved kernel
     kernel_path = "./mice_kernel"
 
@@ -249,3 +348,4 @@ if __name__ == "__main__":
 
     # output recommendations to user
     print_recommendations(recommendations)
+    show_recommendations(recommendations, user_destinations, recs)
