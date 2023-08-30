@@ -32,7 +32,11 @@ Ensure you have ```cmake```, ```libomp```, and ```gcc``` or ```clang``` installe
 4. Enter the number of recommendations you would like to recieve
 5. Voila!
 
+### CLI
 [![asciicast](https://asciinema.org/a/KJpXLor4YrJ9EFrWccM90PNOL.svg)](https://asciinema.org/a/KJpXLor4YrJ9EFrWccM90PNOL?t=03&loop=0)
+
+### Choropleth: Visualization of recommended travel destinations
+![Choropleth exemplar](choropleth-example.png?raw=true "Choropleth: Visualization of recommended travel destinations")
 
 ## Acknowledgment
 This project was inspired by my love for travel, and my parents, who's lives are only now allowing them to explore their love for it too.
