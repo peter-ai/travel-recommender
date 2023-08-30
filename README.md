@@ -30,7 +30,7 @@ Ensure you have ```cmake```, ```libomp```, and ```gcc``` or ```clang``` installe
 2. Enter 3 countries, sequentially, hitting enter after each entry (spelling need not be 100% correct)
 3. Decide whether you want similar destinations to those you provided or not
 4. Enter the number of recommendations you would like to recieve
-5. Voila!
+5. Voila! A list of recommendations is generated and a visualization of them is presented
 
 ### CLI
 [![asciicast](https://asciinema.org/a/KJpXLor4YrJ9EFrWccM90PNOL.svg)](https://asciinema.org/a/KJpXLor4YrJ9EFrWccM90PNOL?t=03&loop=0)
