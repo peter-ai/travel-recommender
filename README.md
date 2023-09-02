@@ -9,7 +9,7 @@ Requirements: *Python 3.11+*
 ### Source code
 The system can be cloned from the latest sources using this command: 
 ```
-git clone https://github.com/peter-ai/personalwebsite.git
+git clone https://github.com/peter-ai/travel-recommender.git
 ```
 
 ### Dependencies
@@ -18,7 +18,7 @@ THere are a number of python packages on which the system depends. Refer to the 
 pip install -r requirements.txt
 ```
 
-As of this release, the ```lightgbm``` package cannot be installed on Apple Silicon via pip. Alternatively, conda can be used or the package can be downloaded and built from the latest source package (see [LightGBM](hhttps://pypi.org/project/lightgbm/3.3.4/)) by extracting the lightgbm-3.3.4 folder from the tar.gz and running: 
+As of this release, the ```lightgbm``` package cannot be installed on Apple Silicon via pip. Alternatively, conda can be used or the package can be downloaded and built from the latest source package (see [LightGBM](https://pypi.org/project/lightgbm/3.3.4/)) by extracting the lightgbm-3.3.4 folder from the tar.gz and running: 
 ```
 python setup.py install
 ```
