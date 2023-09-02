@@ -210,7 +210,7 @@ if __name__ == "__main__":
     pio.renderers.default = "browser"
 
     # set path for loading aggregated data and saved kernel
-    kernel_path = "./mice_kernel"
+    kernel_path = "./Data/mice_kernel"
 
     # load saved data and kernel, get count of imputed data sets and original data
     kernel = load_kernel(kernel_path)  # load kernel
