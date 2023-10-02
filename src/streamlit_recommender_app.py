@@ -1,3 +1,7 @@
+"""
+Author: @peter akioyamen
+"""
+
 # import packages
 import numpy as np
 import pandas as pd
@@ -108,6 +112,9 @@ def get_recommendations(imputed_dfs, user_destinations, similar="Y", recs=5):
         if similar == "Y":
             # retrieve the top n most similar destinations - minimize the sum of distances across the provided locations
             temp_recs = np.argpartition(dist.sum(axis=0), (recs + 3))[: (recs + 3)]
+        elif similar == "S":
+            # retrieve the n somewhat similar destinations - minimize the sum of distances across the provided locations
+            temp_recs = np.argpartition(dist.sum(axis=0), (recs + 3))[28 : (28 + recs)]
         else:
             # retrieve the top n least similar destinations - maximize the sum of distances across the provided locations
             temp_recs = np.argpartition(dist.sum(axis=0), -(recs + 3))[-(recs + 3) :]
@@ -263,23 +270,22 @@ if __name__ == "__main__":
     # webpage markup
     st.write(
         """
-        # Vacation Recommendation System
+        # Vacation Recommender
         **Author: Peter Akioyamen** (see [@peterai](https://github.com/peter-ai/travel-recommender) for the full github repo)
     
         ### Context
         This is a recommendation system which, based on your past experiences, provides useful suggestions 
         for your next travel destination. Decisions are informed by up to 3 of your past travel experiences,
-        or experiences you believe you would have enjoyed if you had went; 
-        you can query the system for similar locations to those you provided, or dissimilar destinations if 
-        you're looking for a complete change of scenery (no pun intended), outputting up to 25 suggestions 
-        for you to consider. 
+        or experiences you believe you would have enjoyed if you had went; you can query the system for similar 
+        locations to those you provided, somewhat similar ones if you want a bit more excitement, or completely
+        dissimilar destinations if you're looking for a complete change of scenery (no pun intended), 
+        outputting up to 25 suggestions for you to consider. 
         """
     )
 
     with st.expander("See a few details about the analysis and implementation"):
         st.write(
             """
-            
             Data underpinning this recommendation system was scraped from Wikipedia, considering various characteristics 
             of a destination including climate, common transportation modalities, demographics, food, political 
             atmosphere, and geograpphical features, among others. In total there were ~65 features used to assess 
@@ -344,8 +350,8 @@ if __name__ == "__main__":
     # get user request for similar or dissimilar recommendations
     similar = st.selectbox(
         label="Would you like recommendations that are similar to the provided destinations?",
-        options=["Y", "N"],
-        format_func=lambda x: "No" if x == "N" else "Yes",
+        options=["Y", "S", "N"],
+        format_func=lambda x: "No" if x == "N" else "Somewhat" if x == "S" else "Yes",
     )
 
     # get number of recommendations from user
