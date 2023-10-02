@@ -191,6 +191,8 @@ def show_recommendations(recommendations, user_destinations, recs):
 
     fig.update_layout(
         coloraxis_colorbar_y=0.5,
+        width=900,
+        height=540,
         autosize=True,
         margin=dict(b=120, t=0, l=0, r=0),
         geo=dict(showframe=False),
