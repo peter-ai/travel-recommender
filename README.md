@@ -5,7 +5,7 @@ Data underpinning these recommendations was scraped from Wikipedia, considering 
 
 Requirements: *Python 3.11+*
 
-## Installation
+## Local Installation
 ### Source code
 The system can be cloned from the latest sources using this command: 
 ```
@@ -25,7 +25,10 @@ python setup.py install
 
 Ensure you have ```cmake```, ```libomp```, and ```gcc``` or ```clang``` installed before executing the above. 
 
-## Usage
+## Usage - Live Demo
+A live and interactive demo of the recommendation engine is available on [Streamlit](https://travel-recommender-peterai.streamlit.app/)
+
+## Command Line
 1. Run `python travel_recommender.py` in your terminal, text editor or IDE
 2. Enter 3 countries, sequentially, hitting enter after each entry (spelling need not be 100% correct)
 3. Decide whether you want similar destinations to those you provided or not
