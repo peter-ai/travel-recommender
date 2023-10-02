@@ -219,7 +219,11 @@ def checkCountries():
 # launch server
 if __name__ == "__main__":
     # set path for loading aggregated data and saved kernel
-    kernel_path = "../Data/mice_kernel"
+    kernel_path = "./Data/mice_kernel"
+
+    
+    #import os
+    #print(os.getcwd())
 
     # load saved data and kernel, get count of imputed data sets and original data
     kernel = load_kernel(kernel_path)  # load kernel
