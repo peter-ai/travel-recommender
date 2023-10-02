@@ -1,8 +1,3 @@
-"""
-
-"""
-
-
 # import packages
 import numpy as np
 import pandas as pd
@@ -14,11 +9,59 @@ from miceforest import load_kernel
 from sklearn.preprocessing import StandardScaler
 from sklearn_pandas import DataFrameMapper, gen_features
 
-st.set_page_config(layout="wide")
+# Set layout of streamlit page
+st.set_page_config(
+    layout="wide",
+    page_title="Vacation recommender system",
+    page_icon="🛫",
+)
 
 
-# define travel recommendation function
-def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=5):
+def checkCountries():
+    """
+    A callback function sanity checks the country input data
+    based on the dependencies between input fields
+    """
+    c1 = st.session_state.country1
+    c2 = st.session_state.country2
+    c3 = st.session_state.country3
+
+    if c1 == c2 and c1 != None:
+        st.session_state.country2 = None
+    elif c1 == c3 and c3 != None:
+        st.session_state.country3 = None
+    elif c2 == c3 and c2 != None:
+        st.session_state.country3 = None
+
+
+@st.cache_resource(show_spinner=False)
+def get_kernel(kernel_path):
+    """
+    A function which loads the kernel from memory and caches the value
+
+    Parameters
+    ----------
+    kernel_path (str) : a valid file path to the file containing the serialized imputation kernel
+    """
+
+    return load_kernel(kernel_path)
+
+
+@st.cache_resource(show_spinner=False)
+def get_kernel_data(_kernel, datasets):
+    """
+    A function which extracts the imputed datasets from the kernel
+
+    Parameters
+    ----------
+    _kernel (miceforest.ImputationKernel) : imputation kernel
+    datasets (int) : the number of datasets imputed and stored in the kernel
+    """
+    return [_kernel.complete_data(data) for data in range(datasets)]
+
+
+@st.cache_data(show_spinner=False, max_entries=25)
+def get_recommendations(imputed_dfs, user_destinations, similar="Y", recs=5):
     """
     A function which generates recommendations for travel destinations based on user input
     using Gower's distance and voting ensemble principles for aggregating results across
@@ -27,8 +70,7 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
 
     Parameters
     ----------
-    kernel (miceforest.ImputationKernel) : kernel dataset created by the miceforest package
-    data_sets (int) : count of data sets created through MICE and stored in kernel
+    imputed_dfs (list) : list of imputed datasets in the form of pandas dataframes
     user_destinations (np.ndarray) : array of user provided destinations
     similar (str) : 'Y' or 'N' indicating user wants similar or dissimilar recommendations
     recs (int) : number of recommendations wanted by the user
@@ -37,11 +79,14 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
     recommendations = np.array(list())
     numeric_cols = [
         [col]
-        for col in kernel.working_data.select_dtypes(include=[np.number]).columns.values
+        for col in imputed_dfs[0].select_dtypes(include=[np.number]).columns.values
     ]
 
-    for data in range(data_sets):
-        imputed_df = kernel.complete_data(data)
+    progress_bar = st.progress(0, "Loading, in progress, please wait...")
+    for i, imputed_df in enumerate(imputed_dfs):
+        progress_bar.progress(
+            (i + 1) * 10, f"Generating: {(i+1/len(imputed_df))*10:.0f}%"
+        )
 
         # standardize features using feature map of numerical columns to
         # ensure distance measure is not influenced by scale of features
@@ -80,6 +125,8 @@ def get_recommendations(kernel, data_sets, user_destinations, similar="Y", recs=
 
     # select the most frequently recommended locations across data sets
     recommendations = np.unique(recommendations, return_counts=True)
+
+    progress_bar.empty()
 
     # return list of top n recommendations based on countries provided and similarity/dissimilarity
     return recommendations
@@ -200,40 +247,20 @@ def show_recommendations(recommendations, user_destinations, recs):
     st.plotly_chart(fig)
 
 
-def checkCountries():
-    """
-    A callback function sanity checks the country input data
-    based on the dependencies between input fields
-
-    """
-    c1 = st.session_state.country1
-    c2 = st.session_state.country2
-    c3 = st.session_state.country3
-
-    if c1 == c2 and c1 != None:
-        st.session_state.country2 = None
-    elif c1 == c3 and c3 != None:
-        st.session_state.country3 = None
-    elif c2 == c3 and c2 != None:
-        st.session_state.country3 = None
-
-
-# launch server
+# Launch streamlit server and run recommendation engine
 if __name__ == "__main__":
     # set path for loading aggregated data and saved kernel
     kernel_path = "./Data/mice_kernel"
 
-    # import os
-    # print(os.getcwd())
-
     # load saved data and kernel, get count of imputed data sets and original data
-    kernel = load_kernel(kernel_path)  # load kernel
+    kernel = get_kernel(kernel_path)  # load kernel
     datasets = kernel.dataset_count()  # get number of imputed data sets
     destinations = (
         kernel.working_data.index.values
     )  # retrieve master list of destinations
+    imputed_dfs = get_kernel_data(kernel, datasets)
 
-    # begin webpage
+    # webpage markup
     st.write(
         """
         # Vacation Recommendation System
@@ -310,7 +337,7 @@ if __name__ == "__main__":
             on_change=checkCountries,
         )
 
-    # check if all entries are empty - TODO: Delete?
+    # only keep non-None entries
     countries = np.array([country1, country2, country3])
     user_destinations = countries[countries != None]
 
@@ -321,6 +348,7 @@ if __name__ == "__main__":
         format_func=lambda x: "No" if x == "N" else "Yes",
     )
 
+    # get number of recommendations from user
     recs = st.slider(
         label="How many recommendations would you like?",
         min_value=3,
@@ -329,9 +357,7 @@ if __name__ == "__main__":
         step=1,
     )
 
-    recommendations = get_recommendations(
-        kernel, datasets, user_destinations, similar, recs
-    )
+    recommendations = get_recommendations(imputed_dfs, user_destinations, similar, recs)
 
     # output recommendations to user
     tab1, tab2 = st.tabs(["Choropleth map", "Recommendation table"])
