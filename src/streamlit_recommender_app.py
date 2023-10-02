@@ -221,9 +221,8 @@ if __name__ == "__main__":
     # set path for loading aggregated data and saved kernel
     kernel_path = "./Data/mice_kernel"
 
-    
-    #import os
-    #print(os.getcwd())
+    # import os
+    # print(os.getcwd())
 
     # load saved data and kernel, get count of imputed data sets and original data
     kernel = load_kernel(kernel_path)  # load kernel
@@ -240,8 +239,9 @@ if __name__ == "__main__":
     
         ### Context
         This is a recommendation system which, based on your past experiences, provides useful suggestions 
-        for your next travel destination. Decisions can be informed by up to 3 past travel experiences; 
-        you can query the system for similar locations to those provided, or dissimilar destinations if 
+        for your next travel destination. Decisions are informed by up to 3 of your past travel experiences,
+        or experiences you believe you would have enjoyed if you had went; 
+        you can query the system for similar locations to those you provided, or dissimilar destinations if 
         you're looking for a complete change of scenery (no pun intended), outputting up to 25 suggestions 
         for you to consider. 
         """
@@ -256,14 +256,14 @@ if __name__ == "__main__":
             atmosphere, and geograpphical features, among others. In total there were ~65 features used to assess 
             similarity between countries.
 
-            Multiple imputation was used to deal with data missigness and fuzzy-matching to address naming
-            inconsistencies across data sources. In this implementation Gower's distance was used to accomodate
-            the use of categorical and continuous data, but further exploration with clustering methods 
+            Multiple imputation was used to deal with data missingess and fuzzy-matching to address naming
+            inconsistencies across data sources. In this implementation Gower's distance was used to accommodate
+            the inclusion of both categorical and continuous variables. Further exploration with clustering methods 
             could yield interesting results. For a given country that is recommended, the conviction is 
-            computed as the normalized recommendation frequency across multiple imputed data sets.
+            computed as the normalized recommendation frequency across imputed datasets.
 
             See the [github repo](https://github.com/peter-ai/travel-recommender) if you'd like to check out 
-            the source code or fork it and play around with it on your own. If interested, checkout my website 
+            the source code and play around with it yourself. If interested, checkout my website 
             at [peterai.me](https://peterai.me).
             """
         )
