@@ -351,7 +351,11 @@ if __name__ == "__main__":
     similar = st.selectbox(
         label="Would you like recommendations that are similar to the provided destinations?",
         options=["Y", "S", "N"],
-        format_func=lambda x: "No" if x == "N" else "Somewhat" if x == "S" else "Yes",
+        format_func=lambda x: "No"
+        if x == "N"
+        else "I'm Feeling Lucky"
+        if x == "S"
+        else "Yes",
     )
 
     # get number of recommendations from user
