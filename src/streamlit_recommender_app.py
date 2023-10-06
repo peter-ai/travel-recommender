@@ -271,7 +271,7 @@ if __name__ == "__main__":
     st.write(
         """
         # Vacation Recommender
-        **Author: Peter Akioyamen** (see [@peterai](https://github.com/peter-ai/travel-recommender) for the full github repo)
+        **Author: Peter Akioyamen** (see [@peter-ai](https://github.com/peter-ai/travel-recommender) for the full github repo)
     
         ### Context
         This is a recommendation system which, based on your past experiences, provides useful suggestions 
