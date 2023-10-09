@@ -1,5 +1,8 @@
 """
-Author: @peter akioyamen
+Author: Peter Akioyamen
+
+A webapp which provides travel recommendations
+based on user's past experiences. Built on Streamlit.
 """
 
 # import packages
@@ -12,13 +15,6 @@ from gower import gower_matrix
 from miceforest import load_kernel
 from sklearn.preprocessing import StandardScaler
 from sklearn_pandas import DataFrameMapper, gen_features
-
-# Set layout of streamlit page
-st.set_page_config(
-    layout="wide",
-    page_title="Vacation recommender system",
-    page_icon="🛫",
-)
 
 
 def checkCountries():
@@ -139,7 +135,7 @@ def get_recommendations(imputed_dfs, user_destinations, similar="Y", recs=5):
     return recommendations
 
 
-def print_recommendations(recommendations):
+def print_recommendations(recommendations, recs):
     """
     A function which outputs the results provided by recommender system.
 
@@ -245,17 +241,22 @@ def show_recommendations(recommendations, user_destinations, recs):
 
     fig.update_layout(
         coloraxis_colorbar_y=0.5,
-        width=900,
-        height=540,
         autosize=True,
         margin=dict(b=120, t=0, l=0, r=0),
         geo=dict(showframe=False),
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 
-# Launch streamlit server and run recommendation engine
-if __name__ == "__main__":
+# main program
+def main():
+    # Set layout of streamlit page
+    st.set_page_config(
+        layout="wide",
+        page_title="Vacation recommender system",
+        page_icon="🛫",
+    )
+
     # set path for loading aggregated data and saved kernel
     kernel_path = "./Data/mice_kernel"
 
@@ -374,4 +375,9 @@ if __name__ == "__main__":
     with tab1:
         show_recommendations(recommendations, user_destinations, recs)
     with tab2:
-        print_recommendations(recommendations)
+        print_recommendations(recommendations, recs)
+
+
+# launch streamlit server and run recommendation engine
+if __name__ == "__main__":
+    main()
