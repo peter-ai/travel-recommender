@@ -240,7 +240,12 @@ def show_recommendations(recommendations, user_destinations, recs):
     )
 
     fig.update_layout(
-        coloraxis_colorbar_y=0.5,
+        coloraxis_colorbar=dict(
+            title="Recommendation<br>intensity",
+            tickvals=[0, 0.5, 1],
+            ticktext=["Low", "Medium", "High"],
+            y=0.5,
+        ),
         autosize=True,
         margin=dict(b=120, t=0, l=0, r=0),
         geo=dict(showframe=False),
